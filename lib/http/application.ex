@@ -1,42 +1,31 @@
 defmodule Http.Application do
   require Logger
+  require Poison
 
   def start(port) do
     {:ok, socket} = :gen_tcp.listen(port, active: false, packet: :http_bin, reuseaddr: true)
     Logger.info("Accepting connections on port #{port}")
 
-    {:ok, spawn_link(Http.Application, :accept, [socket])}
+    # {:ok, spawn_link(Http.Application, :accept, [socket])}
+    accept(socket)
   end
 
   def accept(socket) do
     {:ok, req} = :gen_tcp.accept(socket)
-    {status, info} = :gen_tcp.recv(req, 0)
+    recv = :gen_tcp.recv(req, 0)
 
-    if status != :ok do
-      false
+    case recv do
+        {:ok, info} -> process_request(req, info)
+        _ -> Logger.info("Close request")
     end
-
-    {_, method, {_, path}, _} = info
-
-    spawn(fn ->
-      body = "Hello world! The time is #{Time.to_string(Time.utc_now())}"
-
-      response = """
-      HTTP/1.1 200\r
-      Content-Type: text/html\r
-      Content-Length: #{byte_size(body)}\r
-
-      #{body}
-      """
-
-      send_response(req, response)
-    end)
 
     accept(socket)
   end
 
-  def send_response(req, response) do
-    :gen_tcp.send(req, response)
-    :gen_tcp.close(req)
+  # Process request
+  defp process_request(req, info) do
+    spawn(fn -> Router.init(req, info, {}) end)
   end
+
+
 end

@@ -4,6 +4,7 @@ end
 
 defmodule Router do
   require Logger
+
   import String, only: [split: 2, trim: 1, to_atom: 1]
 
   defstruct method: "GET", path: "/", controller: nil
@@ -39,12 +40,10 @@ defmodule Router do
   # Process request
   @spec _process(req:: Request):: String.t()
   defp _process(req) do
-    method = req.method
-    path = req.path
-
-    route = Enum.find(Routes.all(), fn(r) ->
+    route = Enum.find(Routes.all(), nil, fn(r) ->
       # TODO: match path with regex
-      match?({method, path}, r)
+      {method, path, _} = r
+      method == req.method and String.match?(req.path, path)
     end)
     IO.puts(route)
     Response.html 200, "<h1>Adadasd</h1>"
@@ -55,7 +54,7 @@ defmodule Router do
     # Headers is end with a empty line
     # End of loop
     case :gen_tcp.recv(socket, 0) do
-      {:error, reason} -> %{}
+      {:error, _} -> %{}
       # When has a break line
       {:ok, line} when byte_size(line) <= 2 -> %{}
       {:ok, line} ->
@@ -72,7 +71,7 @@ defmodule Router do
   defp _read_query (path_query) do
     case split(path_query, "?") do
       # has query parameters
-      [path | query_string] ->
+      [path | query_string] when query_string != [] ->
         part_list = split hd(query_string), "&"
 
         query = Enum.reduce part_list, %{}, fn (part, acc) ->

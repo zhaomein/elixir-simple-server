@@ -1,29 +1,34 @@
 
 defmodule Response do
-  @types %{json: "application/json", text_html: "text/html"}
-
-  # Send response
-  defp send_response(req, content_type, status_code, body) when is_integer(status_code) do
-    response = """
-      HTTP/1.1 #{status_code}\r
-      Content-Type: #{content_type}\r
-      Content-Length: #{byte_size(body)}\r
-
-      #{body}
-    """
-    :gen_tcp.send(req, response)
-    :gen_tcp.close(req)
-  end
+  @messages %{
+    200 => "OK",
+    404 => "Not Found",
+    500 => "Internal Error"
+  }
 
   # Send json response
-  def json(req, status_code, body) do
-    json_data = Poison.encode!(body)
-    send_response(req, @types[:json], status_code, json_data)
+  def json(code, body) do
+    body = Poison.encode!(body)
+    response("application/json", code, body)
   end
 
   # Send html response
-  def html(req, status_code, body) do
-    send_response(req, @types[:text_html], status_code , body)
+  def html(code, body) do
+    response("text/html", code , body)
   end
 
+  # Common response
+  defp response(type, code, body) do
+    code = code || 500
+    """
+    HTTP/1.1 #{code} #{message(code)}}
+    Date: #{:httpd_util.rfc1123_date}
+    Content-Type: #{type}
+    Content-Length: #{byte_size(body)}
+
+    #{body}
+    """
+  end
+
+  defp message(code), do: @messages[code] || "Unknown"
 end

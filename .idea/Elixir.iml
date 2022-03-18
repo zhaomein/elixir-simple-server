@@ -38,5 +38,6 @@
     <orderEntry type="library" name="junit_formatter" level="project" />
     <orderEntry type="library" name="stream_data" level="project" />
     <orderEntry type="library" name="tiny" level="project" />
+    <orderEntry type="library" name="Elixir at C:/Program Files (x86)/Elixir" level="application" />
   </component>
 </module>

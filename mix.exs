@@ -1,9 +1,9 @@
-defmodule SimpleServer.MixProject do
+defmodule ChatServer.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :simple_server,
+      app: :chat_server,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
@@ -16,7 +16,7 @@ defmodule SimpleServer.MixProject do
     [
       applications: [],
       mod: {Http, []},
-      extra_applications: [:logger, :poison]
+      extra_applications: [:logger, :poison, :crypto]
     ]
   end
 

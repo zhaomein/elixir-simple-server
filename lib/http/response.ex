@@ -17,12 +17,15 @@ defmodule Response do
     response("text/html", code , body)
   end
 
+  def forbidden() do
+    Response.html 403, "<h1>403 Forbidden!</h1>"
+  end
+
   # Common response
   defp response(type, code, body) do
     code = code || 500
     """
     HTTP/1.1 #{code} #{message(code)}}
-    Date: #{:httpd_util.rfc1123_date}
     Content-Type: #{type}
     Content-Length: #{byte_size(body)}
 

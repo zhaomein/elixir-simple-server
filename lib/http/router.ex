@@ -66,7 +66,7 @@ defmodule Router do
         not_passed = Enum.any?(middleware, fn md -> md.(req) == false end)
         case not_passed do
           false -> handler.(req)
-          _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+          _ -> Response.forbidden
         end
 
       # when is a single middleware
@@ -74,7 +74,7 @@ defmodule Router do
         m = middleware || fn (_) -> true end
         case m.(req) do
           true -> handler.(req)
-          _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+          _ -> Response.forbidden
         end
     end
   end
@@ -94,7 +94,7 @@ defmodule Router do
         value = Enum.join(value_arr, ":")
 
         # Do a looping until read to end of headers and return List of headers
-        Map.merge(%{trim(key) => trim(value)}, _read_headers(socket, headers))
+        Map.merge(%{String.downcase(trim(key)) => trim(value)}, _read_headers(socket, headers))
     end
   end
 

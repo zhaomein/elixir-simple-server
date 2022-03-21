@@ -1,18 +1,10 @@
 # SimpleServer
 
-**TODO: Add description**
+**Simple HTTP Chat APIs for Elixir without any library.**
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `simple_server` to your list of dependencies in `mix.exs`:
-
+## Run server
 ```elixir
-def deps do
-  [
-    {:simple_server, "~> 0.1.0"}
-  ]
-end
+mix
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)

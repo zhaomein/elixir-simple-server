@@ -1,6 +1,7 @@
 defmodule Http do
   require Logger
   require Poison
+  require Router
 
   @port 3000
 

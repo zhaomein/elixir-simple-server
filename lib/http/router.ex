@@ -4,8 +4,8 @@ end
 
 defmodule Router do
   require Logger
-
-  import String, only: [split: 2, trim: 1, to_atom: 1]
+  require Regex
+  import String, only: [split: 2, trim: 1, to_atom: 1, trim: 2]
 
   defstruct method: "GET", path: "/", controller: nil
 
@@ -42,14 +42,33 @@ defmodule Router do
   defp _process(req) do
     route = Enum.find(Routes.all(), nil, fn(r) ->
       # TODO: match path with regex
-      {method, path, _} = r
-      method == req.method and String.match?(req.path, path)
+      {method, path} = case r do
+        {method, path, _} -> {method, path}
+        {method, path, _, _} -> {method, path}
+      end
+
+      {_, regex } = Regex.compile("^#{path}$")
+
+      method == req.method and Regex.match?(regex, "/#{trim(req.path, "/")}")
     end)
-    IO.puts(route)
-    Response.html 200, "<h1>Adadasd</h1>"
+
+    case route do
+      {_, _, handler} -> call_handler(handler, nil, req)
+      {_, _, handler, middleware} -> call_handler(handler, middleware, req)
+      nil -> Response.html 404, "<h1>Path: #{req.method} #{req.path} not found in routes!</h1>"
+    end
+  end
+
+  defp call_handler(handler, middleware, req) do
+    m = middleware || fn (_) -> true end
+    case m.(req) do
+      true -> handler.(req)
+      _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+    end
   end
 
   # Default value of headers parameter is a empty List
+  @spec _read_headers(socket::Port, headers:: Map):: Map
   defp _read_headers(socket, headers \\ %{}) do
     # Headers is end with a empty line
     # End of loop

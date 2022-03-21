@@ -53,17 +53,29 @@ defmodule Router do
     end)
 
     case route do
-      {_, _, handler} -> call_handler(handler, nil, req)
+      {_, _, handler} -> call_handler(handler, [], req)
       {_, _, handler, middleware} -> call_handler(handler, middleware, req)
       nil -> Response.html 404, "<h1>Path: #{req.method} #{req.path} not found in routes!</h1>"
     end
   end
 
   defp call_handler(handler, middleware, req) do
-    m = middleware || fn (_) -> true end
-    case m.(req) do
-      true -> handler.(req)
-      _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+    case middleware do
+      # when has list of middlewares
+      _ when is_list(middleware) ->
+        not_passed = Enum.any?(middleware, fn md -> md.(req) == false end)
+        case not_passed do
+          false -> handler.(req)
+          _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+        end
+
+      # when is a single middleware
+      _ when is_function(middleware) ->
+        m = middleware || fn (_) -> true end
+        case m.(req) do
+          true -> handler.(req)
+          _ -> Response.html 403, "<h1>403 Forbidden!</h1>"
+        end
     end
   end
 

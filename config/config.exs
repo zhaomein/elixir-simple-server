@@ -14,7 +14,7 @@ import Config
 #
 
 config :chat_server,
-       JWT_SCRET: "GM8pxBYJqsN4YBjSmxCUAkHTGquWzxGWZRuwuHmV"
+       JWT_SECRET: "GM8pxBYJqsN4YBjSmxCUAkHTGquWzxGWZRuwuHmV"
 
 # And access this configuration in your application as:
 #

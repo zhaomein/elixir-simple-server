@@ -1,0 +1,37 @@
+version: '3'
+services:
+  elixir-exc-prod:
+    build:
+      context: .
+      dockerfile: docker-image/elixir-prod/Dockerfile
+    container_name: elixir-exc-prod
+    volumes:
+      - ./:/app
+      - ~/.ssh:/root/.ssh
+    environment:
+      - ERL_AFLAGS=-kernel shell_history enabled
+    extra_hosts:
+      - "robot.sh:127.0.0.1"
+    profiles:
+      - prod
+  elixir-exc:
+    build:
+      context: .
+      dockerfile: docker-image/elixir/Dockerfile
+      args:
+        RUN_ENV: ${RUN_ENV}
+    container_name: elixir_exc
+    volumes:
+      - ./:/app
+      - ~/.ssh:/root/.ssh
+    environment:
+      - ERL_AFLAGS=-kernel shell_history enabled
+    extra_hosts:
+      - "robot.sh:127.0.0.1"
+    networks:
+      scheduler_default:
+        aliases:
+          - elixir-sche
+networks:
+  scheduler_default:
+    external: true

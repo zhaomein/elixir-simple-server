@@ -1,0 +1,42 @@
+name: Mix Credo
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main", "dev"]
+
+jobs:
+  check-syntax:
+    runs-on: ubuntu-latest
+    env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+
+    - name: Check docker network
+      run: docker network ls|grep scheduler_default > /dev/null || docker network create scheduler_default
+
+    - name: Set up Docker Compose
+      run: export RUN_ENV=test && docker compose up -d
+
+    - name: Run Credo and check output
+      run: |
+        output=$(export RUN_ENV=test && docker compose exec -T elixir-exc bash -c 'mix deps.get && mix credo --format=oneline --only=W')
+        if [[ $output == *"[W]"* ]]; then
+          echo "Credo found issues in the code."
+          echo "$output"
+          exit 1
+        else
+          echo "Credo did not find any issues."
+        fi

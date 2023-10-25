@@ -16,8 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
         with:
-          repository:
-            -skygroup2/skn_bot
+          repository: skygroup2/skn_bot
           token: ${{ secrets.GH_TOKEN }}
       - uses: erlef/setup-beam@v1
         with:

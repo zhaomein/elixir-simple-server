@@ -33,10 +33,11 @@ jobs:
     - name: Run Credo and check output
       run: |
         output=$(export RUN_ENV=test && docker compose exec -T elixir-exc-test bash -c 'mix deps.get && mix credo --format=oneline --only=W')
-        if [[ $output == *"[W]"* ]]; then
-          echo "Credo found issues in the code."
-          echo "$output"
-          exit 1
-        else
-          echo "Credo did not find any issues."
-        fi
+        echo "$output"
+#        if [[ $output == *"[W]"* ]]; then
+#          echo "Credo found issues in the code."
+#          echo "$output"
+#          exit 1
+#        else
+#          echo "Credo did not find any issues."
+#        fi

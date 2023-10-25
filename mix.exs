@@ -25,6 +25,7 @@ defmodule ChatServer.MixProject do
     [
       {:poison, "~> 5.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:skn_bot, git: "https://github.com/skygroup2/skn_bot.git", branch: "main"},
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

@@ -1,5 +1,11 @@
 name: Mix Credo
-on: [pull_request]
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main", "dev"]
+
 jobs:
   credo:
     name: runner / credo

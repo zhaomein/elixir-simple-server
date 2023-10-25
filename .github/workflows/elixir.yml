@@ -19,3 +19,13 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
+      - name: Run Credo and check output
+        run: |
+          output=$(export RUN_ENV=test && mix credo --format=oneline --only=W)
+          if [[ $output == *"[W]"* ]]; then
+            echo "Credo found issues in the code."
+            echo "$output"
+            exit 1
+          else
+            echo "Credo did not find any issues."
+          fi

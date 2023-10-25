@@ -2,9 +2,9 @@ name: Mix Credo
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   pull_request:
-    branches: ["main", "dev"]
+    branches: ["master", "dev"]
 
 jobs:
   credo:

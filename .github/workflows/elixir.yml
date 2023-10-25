@@ -6,23 +6,39 @@ on:
 
 jobs:
   credo:
-    name: runner / credo
+    name: Credo with Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+    strategy:
+      matrix:
+        otp: [25.x]
+        elixir: [1.15.x]
     runs-on: ubuntu-latest
-    container:
-      image: elixir:1.15-slim
     steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
       - name: Set up SSH
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
-      - uses: actions/checkout@v2
       - name: Install Dependencies
         run: |
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
-      - name: Run credo
-        run: |
-          mix credo --format=oneline --only=W
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      - name: Check Linter
+        run: mix credo
+
+      - name: Run Tests
+        run: mix test
+
+      - name: Check Typespec
+        run: mix dialyzer --halt-exit-status

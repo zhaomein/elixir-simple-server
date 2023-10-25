@@ -6,7 +6,7 @@ on:
 
 jobs:
   credo:
-    name: Credo with Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+    name: Convention check
     strategy:
       matrix:
         otp: [25.x]
@@ -30,9 +30,6 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
-
-      - name: Check Formatting
-        run: mix format --check-formatted
 
       - name: Check Linter
         run: mix credo

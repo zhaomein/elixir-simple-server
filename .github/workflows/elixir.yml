@@ -1,43 +1,20 @@
 name: Mix Credo
-
-on:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master", "dev"]
-
+on: [pull_request]
 jobs:
-  check-syntax:
+  credo:
+    name: runner / credo
     runs-on: ubuntu-latest
-    env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
+    container:
+      image: elixir:1.15-slim
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-        chmod 644 ~/.ssh/known_hosts
-
-    - name: Check docker network
-      run: docker network ls|grep scheduler_default > /dev/null || docker network create scheduler_default
-
-    - name: Set up Docker Compose
-      run: export RUN_ENV=test && docker compose up -d
-
-    - name: Run Credo and check output
-      run: |
-        output=$(export RUN_ENV=test && docker compose exec -T elixir-exc-test bash -c 'mix deps.get && mix credo --format=oneline --only=W')
-        echo "$output"
-#        if [[ $output == *"[W]"* ]]; then
-#          echo "Credo found issues in the code."
-#          echo "$output"
-#          exit 1
-#        else
-#          echo "Credo did not find any issues."
-#        fi
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+      - name: credo
+        uses: red-shirts/reviewdog-action-credo@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review # Change reporter.
